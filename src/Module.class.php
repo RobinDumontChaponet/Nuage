@@ -34,7 +34,7 @@ abstract class Module implements \Observer
     }
 
     protected function stderr($message) {
-        $this->server->stderr(\Nuage\format('Module '.$this->getModuleName().' : '.$message, 'red', true));
+        $this->server->stderr(format('Module '.$this->getModuleName().' : '.$message, 'red', true));
     }
 
     protected function post($receiver, $content) {
