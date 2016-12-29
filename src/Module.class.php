@@ -1,6 +1,6 @@
 <?php
 
-namespace Nuage;
+namespace Nuage\Core;
 
 require_once 'Observer.interface.php';
 require_once 'Observable.interface.php';
