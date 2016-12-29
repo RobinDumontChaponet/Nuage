@@ -24,7 +24,7 @@ require_once 'php-websockets/websockets.php';
 
 use \Observer as Module;
 
-abstract class Core extends \WebSocketServer implements \Observable {
+abstract class Server extends \WebSocketServer implements \Observable {
 	protected $userClass = 'Client';
 	public $debug = false;
 	private $shuttingDown = false;
