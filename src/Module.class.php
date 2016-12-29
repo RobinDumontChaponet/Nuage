@@ -23,7 +23,7 @@ abstract class Module implements \Observer
         return $cc::MODULE_NAME;
     }
 
-    public function __construct(\Nuage\Server $server) {
+    public function __construct(Server $server) {
         $this->server = $server;
 
         $server->subscribe($this);
