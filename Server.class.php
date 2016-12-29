@@ -1,6 +1,6 @@
 <?php
 
-namespace Nuage;
+namespace Nuage\Core;
 
 function format($content, $colorName='white', $bold=false) {
 	$colorCode = array(
