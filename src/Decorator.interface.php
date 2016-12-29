@@ -1,9 +1,10 @@
 <?php
 
-interface Decorator {
-	function __construct($object);
+interface Decorator
+{
+    public function __construct($object);
 
-	public function __call($name, $arguments);
+    public function __call($name, $arguments);
 
-	public function exists ();
+    public function exists();
 }

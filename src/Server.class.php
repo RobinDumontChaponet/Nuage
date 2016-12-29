@@ -2,19 +2,19 @@
 
 namespace Nuage\Core;
 
-function format($content, $colorName='white', $bold=false) {
-	$colorCode = array(
-		'black' => 0,
-		'red' => 1,
-		'green' => 2,
-		'yellow' => 3,
-		'blue' => 4,
-		'magenta' => 5,
-		'cyan' => 6,
-		'white' => 7,
-	);
+function format($content, $colorName = 'white', $bold = false) {
+    $colorCode = array(
+        'black' => 0,
+        'red' => 1,
+        'green' => 2,
+        'yellow' => 3,
+        'blue' => 4,
+        'magenta' => 5,
+        'cyan' => 6,
+        'white' => 7,
+    );
 
-	return "\033[".(30+$colorCode[$colorName]).(($bold)?";1":'')."m".$content."\033[0m";
+    return "\033[".(30 + $colorCode[$colorName]).(($bold) ? ';1' : '').'m'.$content."\033[0m";
 }
 
 set_include_path(__DIR__);
@@ -24,178 +24,183 @@ require_once 'Observable.interface.php';
 
 require_once 'php-websockets/websockets.php';
 
-use \Observer as Module;
+use Observer as Module;
 
-abstract class Server extends \WebSocketServer implements \Observable {
-	protected $userClass = 'Client';
-	public $debug = false;
-	private $shuttingDown = false;
+abstract class Server extends \WebSocketServer implements \Observable
+{
+    protected $userClass = 'Client';
+    public $debug = false;
+    private $shuttingDown = false;
 
-	public $allowedHosts = array('localhost');
+    public $allowedHosts = array('localhost');
 
-	private $observers = array();
+    private $observers = array();
 
-	function __construct($addr, $port, $bufferLength = 2048) {
-		parent::__construct($addr, $port, $bufferLength);
+    public function __construct($addr, $port, $bufferLength = 2048) {
+        parent::__construct($addr, $port, $bufferLength);
 
-		declare(ticks = 1);
-		pcntl_signal(SIGINT,  array($this, 'sig_handler'));
-		pcntl_signal(SIGTERM, array($this, 'sig_handler'));
-		pcntl_signal(SIGHUP,  array($this, 'sig_handler'));
+        declare(ticks=1);
+        pcntl_signal(SIGINT, array($this, 'sig_handler'));
+        pcntl_signal(SIGTERM, array($this, 'sig_handler'));
+        pcntl_signal(SIGHUP, array($this, 'sig_handler'));
 
-		register_shutdown_function(array(&$this, 'shutdown'));
+        register_shutdown_function(array(&$this, 'shutdown'));
 
-		mb_internal_encoding("UTF-8");
-	}
+        mb_internal_encoding('UTF-8');
+    }
 
-	function subscribe(Module $observer) {
-		$this->observers[] = $observer;
-	}
-	function unsubscribe(Module $observer) {
-		foreach($this->observers as $key => $value) {
-			if ($value == $observer) {
-				unset($this->observers[$key]);
-			}
-		}
-	}
+    public function subscribe(Module $observer) {
+        $this->observers[] = $observer;
+    }
 
-	public function post($receiver, $request, $content) {
-		$this->sendJSON($receiver, $request, 'post', $content);
-	}
-	public function postToAllOthers($sender, $request, $content) {
-		foreach ($this->users as $user)
-			if ($user != $sender)
-				$this->post($user, $request, $content);
-	}
+    public function unsubscribe(Module $observer) {
+        foreach($this->observers as $key => $value) {
+            if ($value == $observer) {
+                unset($this->observers[$key]);
+            }
+        }
+    }
 
-	public function put($receiver, $request, $content) {
-		$this->sendJSON($receiver, $request, 'put', $content);
-	}
-	public function putToAllOthers($sender, $request, $content) {
-		foreach ($this->users as $user)
-			if ($user != $sender)
-				$this->put($user, $request, $content);
-	}
+    public function post($receiver, $request, $content) {
+        $this->sendJSON($receiver, $request, 'post', $content);
+    }
 
-	public function patch($receiver, $request, $content) {
-		$this->sendJSON($receiver, $request, 'patch', $content);
-	}
-	public function patchToAllOthers($sender, $request, $content) {
-		foreach ($this->users as $user)
-			if ($user != $sender)
-				$this->patch($user, $request, $content);
-	}
+    public function postToAllOthers($sender, $request, $content) {
+        foreach ($this->users as $user)
+            if ($user != $sender)
+                $this->post($user, $request, $content);
+    }
 
-	public function delete($receiver, $request, $content) {
-		$this->sendJSON($receiver, $request, 'delete', $content);
-	}
-	public function deleteToAllOthers($sender, $request, $content) {
-		foreach ($this->users as $user)
-			if ($user != $sender)
-				$this->delete($user, $request, $content);
-	}
+    public function put($receiver, $request, $content) {
+        $this->sendJSON($receiver, $request, 'put', $content);
+    }
 
-	protected function sendJSON($receiver, $request, $method, $content) {
-		if($this->debug) {
-			$this->stdout(format($receiver->getLogin(), 'yellow', true). ' <- '. $method. ' "'. $request. '"  ');
-			print_r($content);
-		}
+    public function putToAllOthers($sender, $request, $content) {
+        foreach ($this->users as $user)
+            if ($user != $sender)
+                $this->put($user, $request, $content);
+    }
 
-		parent::send(
-			$receiver,
-			json_encode(
-				array(
-					'request' => $request,
-					'method'  => $method,
-					'time'    => time(),
-					'content' => $content
-				)
-			)
-		);
-	}
+    public function patch($receiver, $request, $content) {
+        $this->sendJSON($receiver, $request, 'patch', $content);
+    }
 
-	protected function process($user, $input) {
-		$input = json_decode($input);
+    public function patchToAllOthers($sender, $request, $content) {
+        foreach ($this->users as $user)
+            if ($user != $sender)
+                $this->patch($user, $request, $content);
+    }
 
-		if($this->debug) {
-			$this->stdout(format($user->getLogin(), 'blue', true). ' -> '. $input->method. ' "'. $input->request. '"  ');
-			print_r(@$input->content);
-		}
+    public function delete($receiver, $request, $content) {
+        $this->sendJSON($receiver, $request, 'delete', $content);
+    }
 
-		foreach($this->observers as $observer)
-			$observer->receive($user, $input);
-	}
+    public function deleteToAllOthers($sender, $request, $content) {
+        foreach ($this->users as $user)
+            if ($user != $sender)
+                $this->delete($user, $request, $content);
+    }
 
-	public function getUsers () {
-		return $this->users;
-	}
+    protected function sendJSON($receiver, $request, $method, $content) {
+        if($this->debug) {
+            $this->stdout(format($receiver->getLogin(), 'yellow', true).' <- '.$method.' "'.$request.'"  ');
+            print_r($content);
+        }
 
-	protected function connected ($user) {
-		if($user->enable($user->requestedResource)) {
-			if($this->debug)
-				$this->stdout(format('[ '. $user->getLogin().' connected. ]', 'green'). PHP_EOL);
+        parent::send(
+            $receiver,
+            json_encode(
+                array(
+                    'request' => $request,
+                    'method' => $method,
+                    'time' => time(),
+                    'content' => $content,
+                )
+            )
+        );
+    }
 
-			foreach($this->observers as $observer)
-				$observer->connected($user);
-		} else
-			$this->disconnect($user->socket);
-	}
+    protected function process($user, $input) {
+        $input = json_decode($input);
 
-	protected function closed ($user) {
-		if($this->debug)
-			$this->stdout(format('[ Client disconnected. ]', 'magenta'). PHP_EOL);
+        if($this->debug) {
+            $this->stdout(format($user->getLogin(), 'blue', true).' -> '.$input->method.' "'.$input->request.'"  ');
+            print_r(@$input->content);
+        }
 
-		if(!$this->shuttingDown && $user->exists())
-			foreach($this->observers as $observer)
-				$observer->closed($user);
-	}
+        foreach($this->observers as $observer)
+            $observer->receive($user, $input);
+    }
 
+    public function getUsers() {
+        return $this->users;
+    }
 
-	protected function checkHost($hostName) {
-		if(in_array($hostName, $this->allowedHosts))
-			return true;
-		else {
-			$this->stderr(format('Disallowed host "'.$hostName.'". Disconnecting...', 'red', true));
-			return false;
-		}
-	}
+    protected function connected($user) {
+        if($user->enable($user->requestedResource)) {
+            if($this->debug)
+                $this->stdout(format('[ '.$user->getLogin().' connected. ]', 'green').PHP_EOL);
 
-	protected function shutdown() {
-		$this->shuttingDown = true;
+            foreach($this->observers as $observer)
+                $observer->connected($user);
+        } else
+            $this->disconnect($user->socket);
+    }
 
-		foreach ($this->users as $key => $user) {
-			$this->disconnect($user->socket);
+    protected function closed($user) {
+        if($this->debug)
+            $this->stdout(format('[ Client disconnected. ]', 'magenta').PHP_EOL);
 
-			$user = null;
-			unset($this->users[$key]);
-		}
+        if(!$this->shuttingDown && $user->exists())
+            foreach($this->observers as $observer)
+                $observer->closed($user);
+    }
 
-		foreach($this->observers as $observer)
-			$observer->shutdown();
+    protected function checkHost($hostName) {
+        if(in_array($hostName, $this->allowedHosts))
+            return true;
+        else {
+            $this->stderr(format('Disallowed host "'.$hostName.'". Disconnecting...', 'red', true));
 
-		exit();
-	}
+            return false;
+        }
+    }
 
-	public function sig_handler($sig) {
+    protected function shutdown() {
+        $this->shuttingDown = true;
+
+        foreach ($this->users as $key => $user) {
+            $this->disconnect($user->socket);
+
+            $user = null;
+            unset($this->users[$key]);
+        }
+
+        foreach($this->observers as $observer)
+            $observer->shutdown();
+
+        exit();
+    }
+
+    public function sig_handler($sig) {
 //		$this->stdout('sig caught');
 
-	    switch($sig) {
-        	case SIGINT: case SIGTERM:
+        switch($sig) {
+            case SIGINT: case SIGTERM:
 //			$this->shutdown();
 
-			exit();
-		}
-	}
-
+            exit();
+        }
+    }
 
 /*
-	public function __destruct() {
-		$this->stdout('Server closed.');
+    public function __destruct() {
+        $this->stdout('Server closed.');
 
-		foreach($this->observers as $key => $observer) {
-			$observer = null;
-			unset($this->observers[$key]);
-		}
-	}
+        foreach($this->observers as $key => $observer) {
+            $observer = null;
+            unset($this->observers[$key]);
+        }
+    }
 */
 }

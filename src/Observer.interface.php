@@ -1,5 +1,6 @@
 <?php
 
-interface Observer {
-	function process($user, $input);
+interface Observer
+{
+    public function process($user, $input);
 }
