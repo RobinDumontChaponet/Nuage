@@ -17,6 +17,8 @@ function format($content, $colorName='white', $bold=false) {
 	return "\033[".(30+$colorCode[$colorName]).(($bold)?";1":'')."m".$content."\033[0m";
 }
 
+set_include_path(__DIR__);
+
 require_once 'Observer.interface.php';
 require_once 'Observable.interface.php';
 
