@@ -105,7 +105,7 @@ abstract class Server extends \WebSocketServer implements \Observable
 
     protected function sendJSON($receiver, $request, $method, $content) {
         if($this->debug) {
-            $this->stdout(format($receiver->getLogin(), 'magenta', true).format(' <- ', 'yeallow').format($method, 'grey').' "'.$request.'"  ');
+            $this->stdout(format($receiver->getLogin(), 'magenta', true).format(' <- ', 'yellow').format($method, 'grey').' "'.$request.'"  ');
             print_r($content);
             echo PHP_EOL;
         }
