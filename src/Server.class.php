@@ -15,7 +15,7 @@ function format($content, $colorName = 'white', $bold = false) {
         'orange'=> 214
     );
 
-    return "\033[38;5;".(0 + $colorCode[$colorName]).(($bold) ? ';1' : '').'m'.$content."\033[0m";
+    return "\033[38;5;".($colorCode[$colorName]).(($bold) ? ';1' : '').'m'.$content."\033[0m";
 }
 
 set_include_path(__DIR__);
