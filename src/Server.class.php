@@ -24,6 +24,8 @@ set_include_path(__DIR__);
 require_once 'Observer.interface.php';
 require_once 'Observable.interface.php';
 
+require_once 'Client.class.php';
+
 require_once 'php-websockets/websockets.php';
 
 use Observer as Module;
