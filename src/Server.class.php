@@ -105,6 +105,7 @@ abstract class Server extends \WebSocketServer implements \Observable
         if($this->debug) {
             $this->stdout(format($receiver->getLogin(), 'yellow', true).' <- '.$method.' "'.$request.'"  ');
             print_r($content);
+            echo PHP_EOL;
         }
 
         parent::send(
@@ -126,6 +127,7 @@ abstract class Server extends \WebSocketServer implements \Observable
         if($this->debug) {
             $this->stdout(format($user->getLogin(), 'blue', true).' -> '.$input->method.' "'.$input->request.'"  ');
             print_r(@$input->content);
+            echo PHP_EOL;
         }
 
         foreach($this->observers as $observer)
