@@ -34,7 +34,7 @@ abstract class Module implements \Observer
     }
 
     protected function stderr($message) {
-        $this->server->stderr(format('Module '.$this->getModuleName().' : '.$message, 'red', true));
+        $this->server->stderr('Module '.$this->getModuleName().format(' : ', 'red', true).$message);
     }
 
     protected function post($receiver, $content) {
