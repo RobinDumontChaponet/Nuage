@@ -12,6 +12,7 @@ function format($content, $colorName = 'white', $bold = false) {
         'magenta' => 5,
         'cyan' => 6,
         'white' => 7,
+        'grey' => 8,
         'orange'=> 214
     );
 
@@ -104,7 +105,7 @@ abstract class Server extends \WebSocketServer implements \Observable
 
     protected function sendJSON($receiver, $request, $method, $content) {
         if($this->debug) {
-            $this->stdout(format($receiver->getLogin(), 'yellow', true).' <- '.$method.' "'.$request.'"  ');
+            $this->stdout(format($receiver->getLogin(), 'magenta', true).format(' <- ', 'yeallow').format($method, 'grey').' "'.$request.'"  ');
             print_r($content);
             echo PHP_EOL;
         }
@@ -126,7 +127,7 @@ abstract class Server extends \WebSocketServer implements \Observable
         $input = json_decode($input);
 
         if($this->debug) {
-            $this->stdout(format($user->getLogin(), 'blue', true).' -> '.$input->method.' "'.$input->request.'"  ');
+            $this->stdout(format($user->getLogin(), 'magenta', true).format(' -> ', 'blue').format($input->method, 'grey').' "'.$input->request.'"  ');
             print_r(@$input->content);
             echo PHP_EOL;
         }
@@ -142,7 +143,7 @@ abstract class Server extends \WebSocketServer implements \Observable
     protected function connected($user) {
         if($user->enable($user->requestedResource)) {
             if($this->debug)
-                $this->stdout(format('[ '.$user->getLogin().' connected. ]', 'green').PHP_EOL);
+                $this->stdout('[ '.format($user->getLogin(), 'magenta').' '.format('connected.', 'green').' ]'.PHP_EOL);
 
             foreach($this->observers as $observer)
                 $observer->connected($user);
@@ -152,7 +153,7 @@ abstract class Server extends \WebSocketServer implements \Observable
 
     protected function closed($user) {
         if($this->debug)
-            $this->stdout(format('[ Client disconnected. ]', 'magenta').PHP_EOL);
+            $this->stdout('[ '.format('Client', 'magenta').' '.format('disconnected.', 'grey').' ]'.PHP_EOL);
 
         if(!$this->shuttingDown && $user->exists())
             foreach($this->observers as $observer)
