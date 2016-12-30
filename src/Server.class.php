@@ -12,6 +12,7 @@ function format($content, $colorName = 'white', $bold = false) {
         'magenta' => 5,
         'cyan' => 6,
         'white' => 7,
+        'orange'=> 214
     );
 
     return "\033[".(30 + $colorCode[$colorName]).(($bold) ? ';1' : '').'m'.$content."\033[0m";
