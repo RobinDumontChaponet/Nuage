@@ -18,30 +18,33 @@ class Client extends \WebSocketUser//  implements \Decorator
 	    $requestedResource = explode('/', substr($requestedResource, 1));
 
         if(!is_array($requestedResource) || $requestedResource[0] == '') {
-	        $this->stderr(Nuage\Core\format('RequestedRessource malformed.', 'red', true));
-		    var_dump($requestedResource);
+			echo Nuage\Core\format('RequestedRessource malformed.', 'red', true), PHP_EOL;
+			var_dump($requestedResource);
+			echo PHP_EOL;
 
 		    return false;
 		}
 
-        list($login, $sessionId) = $requestedResource;
+        list($id, $sessionHash) = $requestedResource;
 
-        if(empty($login)) {
-            $this->stderr(Nuage\Core\format('No user-login in requestedRessource.', 'red', true));
-
-            return false;
-        }
-
-        if(empty($sessionId)) {
-            $this->stderr(Nuage\Core\format('No UUSID in requestedRessource.', 'red', true));
+        if(empty($id)) {
+            echo Nuage\Core\format('No user-id in requestedRessource.', 'red', true), PHP_EOL;
 
             return false;
         }
 
-        $this->user = UserDAO::getByLogin($login);
+        if(empty($sessionHash)) {
+            echo Nuage\Core\format('No UUSID in requestedRessource.', 'red', true), PHP_EOL;
 
-        if($this->user->getSessionId() != $sessionId) {
-            $this->stderr(Nuage\Core\format('UUSID in requestedRessource not equal to stored UUSID.', 'red', true));
+            return false;
+        }
+
+        $this->user = UserDAO::getById($id);
+
+        if($this->user->getSessionHash() != $sessionHash) {
+            echo Nuage\Core\format('UUSID in requestedRessource not equal to stored UUSID.', 'red', true), PHP_EOL;
+            var_dump($this->user->getSessionHash(), $sessionHash);
+            echo PHP_EOL;
 
             return false;
         }
@@ -66,6 +69,7 @@ class Client extends \WebSocketUser//  implements \Decorator
     public function toArray() {
 //		return array_intersect_key(get_object_vars($this->decorated), array_flip(array('login')));
         return [
+            'id' => $this->user->getId(),
             'login' => $this->user->getLogin(),
         ];
     }
