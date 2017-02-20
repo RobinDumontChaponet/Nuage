@@ -2,7 +2,7 @@
 
 namespace Nuage\Modules;
 
-class Chat extends \Nuage\Lib\Module
+class Chat extends \Nuage\Core\Module
 {
     const REQUEST = 'message';
 

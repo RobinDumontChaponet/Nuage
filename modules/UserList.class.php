@@ -2,7 +2,7 @@
 
 namespace Nuage\Modules;
 
-class UserList extends \Nuage\Lib\Module
+class UserList extends \Nuage\Core\Module
 {
     const REQUEST = 'user-list';
 
