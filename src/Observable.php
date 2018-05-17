@@ -1,5 +1,7 @@
 <?php
 
+namespace Nuage\Core;
+
 interface Observable
 {
     public function subscribe(Observer $observer);

@@ -2,7 +2,11 @@
 
 namespace Nuage\Core;
 
-function format($content, $colorName = 'white', $bold = false) {
+use \gymadarasz\phpwebsocket\WebSocketServer;
+use \gymadarasz\phpwebsocket\WebSocketUserInterface;
+use Nuage\Core\Observer as Module;
+
+function format(string $content, string $colorName = 'white', bool $bold = false) {
     $colorCode = array(
         'black' => 0,
         'red' => 1,
@@ -19,28 +23,17 @@ function format($content, $colorName = 'white', $bold = false) {
     return "\033[38;5;".($colorCode[$colorName]).(($bold) ? ';1' : '').'m'.$content."\033[0m";
 }
 
-set_include_path(__DIR__);
-
-require_once 'Observer.interface.php';
-require_once 'Observable.interface.php';
-
-require_once 'Client.class.php';
-
-require_once 'php-websockets/websockets.php';
-
-use Observer as Module;
-
-abstract class Server extends \WebSocketServer implements \Observable
+abstract class Server extends WebSocketServer implements Observable
 {
-    protected $userClass = 'Client';
+    protected $userClass = 'Nuage\Core\Client';
     public $debug = false;
     private $shuttingDown = false;
 
-    public $allowedHosts = array('localhost');
+    public $allowedHosts = ['localhost'];
 
-    private $observers = array();
+    private $observers = [];
 
-    public function __construct($addr, $port, $bufferLength = 2048) {
+    public function __construct(string $addr, $port, $bufferLength = 2048) {
         parent::__construct($addr, $port, $bufferLength);
 
         declare(ticks=1);
@@ -125,7 +118,7 @@ abstract class Server extends \WebSocketServer implements \Observable
         );
     }
 
-    protected function process($user, $input) {
+    protected function process(WebSocketUserInterface $user, $input) {
         $input = json_decode($input);
 
         if($this->debug) {
@@ -142,7 +135,7 @@ abstract class Server extends \WebSocketServer implements \Observable
         return $this->users;
     }
 
-    protected function connected($user) {
+    protected function connected(WebSocketUserInterface $user) {
         if($user->enable($user->requestedResource)) {
             if($this->debug)
                 $this->stdout('[ '.format($user->getLogin(), 'magenta').' '.format('connected.', 'green').' ]'.PHP_EOL);
@@ -153,7 +146,7 @@ abstract class Server extends \WebSocketServer implements \Observable
             $this->disconnect($user->socket);
     }
 
-    protected function closed($user) {
+    protected function closed(WebSocketUserInterface $user) {
         if($this->debug)
             $this->stdout('[ '.format('Client', 'magenta').' '.format('disconnected.', 'grey').' ]'.PHP_EOL);
 

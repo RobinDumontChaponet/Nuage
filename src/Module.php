@@ -2,10 +2,7 @@
 
 namespace Nuage\Core;
 
-require_once 'Observer.interface.php';
-require_once 'Observable.interface.php';
-
-abstract class Module implements \Observer
+abstract class Module implements Observer
 {
     private $server;
     const MODULE_NAME = 'base_module';

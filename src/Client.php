@@ -1,10 +1,13 @@
 <?php
 
-require_once 'php-websockets/users.php';
-// require_once 'Decorator.interface.php';
+namespace Nuage\Core;
 
+use gymadarasz\phpwebsocket\WebSocketUserInterface;
+use gymadarasz\phpwebsocket\WebSocketUser;
 
-class Client extends \WebSocketUser//  implements \Decorator
+use \Transitive\Utils\UserDAO;
+
+class Client extends WebSocketUser implements WebSocketUserInterface
 {
     // Properties
     private $user;
