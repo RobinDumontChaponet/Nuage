@@ -7,11 +7,11 @@ class UserList extends \Nuage\Core\Module
     const REQUEST = 'user-list';
 
     public function process($user, $input) {
-        if($input->method == 'get')
+        if('get' == $input->method)
             $this->put($user, array_values(array_map(function ($item) {
                 return $item->toArray();
             }, $this->getUsers())));
-        if($input->method == 'post')
+        if('post' == $input->method)
             $this->postToAllOthers($user, [
                 'sender' => $user->getLogin(),
                 'content' => $input->content,

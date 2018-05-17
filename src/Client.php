@@ -4,8 +4,7 @@ namespace Nuage\Core;
 
 use gymadarasz\phpwebsocket\WebSocketUserInterface;
 use gymadarasz\phpwebsocket\WebSocketUser;
-
-use \Transitive\Utils\UserDAO;
+use Transitive\Utils\UserDAO;
 
 class Client extends WebSocketUser implements WebSocketUserInterface
 {
@@ -18,15 +17,15 @@ class Client extends WebSocketUser implements WebSocketUserInterface
     }
 
     public function enable($requestedResource) {
-	    $requestedResource = explode('/', substr($requestedResource, 1));
+        $requestedResource = explode('/', substr($requestedResource, 1));
 
-        if(!is_array($requestedResource) || $requestedResource[0] == '') {
-			echo Nuage\Core\format('RequestedRessource malformed.', 'red', true), PHP_EOL;
-			var_dump($requestedResource);
-			echo PHP_EOL;
+        if(!is_array($requestedResource) || '' == $requestedResource[0]) {
+            echo Nuage\Core\format('RequestedRessource malformed.', 'red', true), PHP_EOL;
+            var_dump($requestedResource);
+            echo PHP_EOL;
 
-		    return false;
-		}
+            return false;
+        }
 
         list($id, $sessionHash) = $requestedResource;
 

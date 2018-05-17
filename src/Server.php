@@ -2,8 +2,8 @@
 
 namespace Nuage\Core;
 
-use \gymadarasz\phpwebsocket\WebSocketServer;
-use \gymadarasz\phpwebsocket\WebSocketUserInterface;
+use gymadarasz\phpwebsocket\WebSocketServer;
+use gymadarasz\phpwebsocket\WebSocketUserInterface;
 use Nuage\Core\Observer as Module;
 
 function format(string $content, string $colorName = 'white', bool $bold = false) {
@@ -17,7 +17,7 @@ function format(string $content, string $colorName = 'white', bool $bold = false
         'cyan' => 6,
         'white' => 7,
         'grey' => 8,
-        'orange'=> 214
+        'orange' => 214,
     );
 
     return "\033[38;5;".($colorCode[$colorName]).(($bold) ? ';1' : '').'m'.$content."\033[0m";

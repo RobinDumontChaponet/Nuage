@@ -2,12 +2,12 @@
 
 namespace Nuage\Modules;
 
-use function \Nuage\Core\format as format;
+use function Nuage\Core\format as format;
 
 function fopen_utf8($filename, $mode) {
     $handler = @fopen($filename, $mode);
     $bom = fread($handler, 3);
-    if ($bom != b"\xEF\xBB\xBF")
+    if (b"\xEF\xBB\xBF" != $bom)
         rewind($handler);
     else
         echo 'bom found!', PHP_EOL;
@@ -45,7 +45,7 @@ class Pad extends \Nuage\Core\Module
 
         $this->document = json_decode($doc, true);
 
-        if(json_last_error() !== JSON_ERROR_NONE)
+        if(JSON_ERROR_NONE !== json_last_error())
             $this->stderr(format('Error decoding JSON of document "'.$this->fileName.'" : ('.json_last_error().') '.json_last_error_msg().'.', 'red'));
         elseif(!$this->document) {
             $this->document = [
@@ -81,28 +81,28 @@ class Pad extends \Nuage\Core\Module
         if (!is_writable($this->fileName))
             $this->stderr(format('Warning. File "'.$this->fileName.'" is not writeable', 'orange'));
 
-        if (stream_set_write_buffer($this->fileHandler, 512) !== 0)
+        if (0 !== stream_set_write_buffer($this->fileHandler, 512))
             $this->stderr(format('Warning. Could not bufferize document "'.$this->fileName.'"', 'orange'));
     }
 
     public function process($user, $input) {
-        if($input->method == 'get')
+        if('get' == $input->method)
             $this->put($user, [
                 'content' => $this->document['content'],
             ]);
-        if($input->method == 'patch') {
+        if('patch' == $input->method) {
             $this->patchToAllOthers($user, $input->content);
 
             $this->document['mtime'] = time();
 
             foreach($input->content as $data) {
-                if($data->action == 'add')
+                if('add' == $data->action)
 //                     $this->document['content'] = mb_substr($this->document['content'], 0, $data->position->start).utf8_decode($data->content).mb_substr($this->document['content'], $data->position->start);
                     $this->document['content'] = mb_substr($this->document['content'], 0, $data->position->start).$data->content.mb_substr($this->document['content'], $data->position->start);
-                elseif($data->action == 'replace')
+                elseif('replace' == $data->action)
 //                     $this->document['content'] = mb_substr($this->document['content'], 0, $data->position->start).utf8_decode($data->content).mb_substr($this->document['content'], $data->position->end);
                     $this->document['content'] = mb_substr($this->document['content'], 0, $data->position->start).$data->content.mb_substr($this->document['content'], $data->position->end);
-                elseif($data->action == 'delete')
+                elseif('delete' == $data->action)
                     $this->document['content'] = mb_substr($this->document['content'], 0, $data->position->start - $data->position->end).mb_substr($this->document['content'], $data->position->start);
             }
 
