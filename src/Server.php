@@ -33,7 +33,8 @@ abstract class Server extends WebSocketServer implements Observable
 
     private $observers = [];
 
-    public function __construct(string $addr, $port, $bufferLength = 2048) {
+    public function __construct(string $addr, int $port, int $bufferLength = 2048)
+    {
         parent::__construct($addr, $port, $bufferLength);
 
         declare(ticks=1);
@@ -46,11 +47,13 @@ abstract class Server extends WebSocketServer implements Observable
         mb_internal_encoding('UTF-8');
     }
 
-    public function subscribe(Module $observer) {
+    public function subscribe(Module $observer)
+    {
         $this->observers[] = $observer;
     }
 
-    public function unsubscribe(Module $observer) {
+    public function unsubscribe(Module $observer)
+    {
         foreach($this->observers as $key => $value) {
             if ($value == $observer) {
                 unset($this->observers[$key]);
@@ -58,47 +61,56 @@ abstract class Server extends WebSocketServer implements Observable
         }
     }
 
-    public function post($receiver, $request, $content) {
+    public function post(WebSocketUserInterface $receiver, string $request, $content)
+    {
         $this->sendJSON($receiver, $request, 'post', $content);
     }
 
-    public function postToAllOthers($sender, $request, $content) {
+    public function postToAllOthers(WebSocketUserInterface $sender, string $request, $content)
+    {
         foreach ($this->users as $user)
             if ($user != $sender)
                 $this->post($user, $request, $content);
     }
 
-    public function put($receiver, $request, $content) {
+    public function put(WebSocketUserInterface $receiver, string $request, $content)
+    {
         $this->sendJSON($receiver, $request, 'put', $content);
     }
 
-    public function putToAllOthers($sender, $request, $content) {
+    public function putToAllOthers(WebSocketUserInterface $sender, string $request, $content)
+    {
         foreach ($this->users as $user)
             if ($user != $sender)
                 $this->put($user, $request, $content);
     }
 
-    public function patch($receiver, $request, $content) {
+    public function patch(WebSocketUserInterface $receiver, string $request, $content)
+    {
         $this->sendJSON($receiver, $request, 'patch', $content);
     }
 
-    public function patchToAllOthers($sender, $request, $content) {
+    public function patchToAllOthers(WebSocketUserInterface $sender, string $request, $content)
+    {
         foreach ($this->users as $user)
             if ($user != $sender)
                 $this->patch($user, $request, $content);
     }
 
-    public function delete($receiver, $request, $content) {
+    public function delete(WebSocketUserInterface $receiver, string $request, $content)
+    {
         $this->sendJSON($receiver, $request, 'delete', $content);
     }
 
-    public function deleteToAllOthers($sender, $request, $content) {
+    public function deleteToAllOthers(WebSocketUserInterface $sender, string $request, $content)
+    {
         foreach ($this->users as $user)
             if ($user != $sender)
                 $this->delete($user, $request, $content);
     }
 
-    protected function sendJSON($receiver, $request, $method, $content) {
+    protected function sendJSON(WebSocketUserInterface $receiver, string $request, $method, $content)
+    {
         if($this->debug) {
             $this->stdout(format($receiver->getLogin(), 'magenta', true).format(' <- ', 'yellow').format($method, 'grey').' "'.$request.'"  ');
             print_r($content);
@@ -118,7 +130,8 @@ abstract class Server extends WebSocketServer implements Observable
         );
     }
 
-    protected function process(WebSocketUserInterface $user, $input) {
+    protected function process(WebSocketUserInterface $user, $input)
+    {
         $input = json_decode($input);
 
         if($this->debug) {
@@ -135,7 +148,8 @@ abstract class Server extends WebSocketServer implements Observable
         return $this->users;
     }
 
-    protected function connected(WebSocketUserInterface $user) {
+    protected function connected(WebSocketUserInterface $user)
+    {
         if($user->enable($user->requestedResource)) {
             if($this->debug)
                 $this->stdout('[ '.format($user->getLogin(), 'magenta').' '.format('connected.', 'green').' ]'.PHP_EOL);
@@ -146,7 +160,8 @@ abstract class Server extends WebSocketServer implements Observable
             $this->disconnect($user->socket);
     }
 
-    protected function closed(WebSocketUserInterface $user) {
+    protected function closed(WebSocketUserInterface $user)
+    {
         if($this->debug)
             $this->stdout('[ '.format('Client', 'magenta').' '.format('disconnected.', 'grey').' ]'.PHP_EOL);
 
@@ -155,7 +170,8 @@ abstract class Server extends WebSocketServer implements Observable
                 $observer->closed($user);
     }
 
-    protected function checkHost($hostName) {
+    protected function checkHost($hostName)
+    {
         if(in_array($hostName, $this->allowedHosts))
             return true;
         else {
@@ -165,7 +181,8 @@ abstract class Server extends WebSocketServer implements Observable
         }
     }
 
-    protected function shutdown() {
+    protected function shutdown()
+    {
         $this->shuttingDown = true;
 
         foreach ($this->users as $key => $user) {
@@ -181,7 +198,8 @@ abstract class Server extends WebSocketServer implements Observable
         exit();
     }
 
-    public function sig_handler($sig) {
+    public function sig_handler($sig)
+    {
 //		$this->stdout('sig caught');
 
         switch($sig) {
