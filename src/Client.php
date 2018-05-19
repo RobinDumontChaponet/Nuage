@@ -20,7 +20,7 @@ class Client extends WebSocketUser implements WebSocketUserInterface
         $requestedResource = explode('/', substr($requestedResource, 1));
 
         if(!is_array($requestedResource) || '' == $requestedResource[0]) {
-            echo Nuage\Core\format('RequestedRessource malformed.', 'red', true), PHP_EOL;
+            echo format('RequestedRessource malformed.', 'red', true), PHP_EOL;
             var_dump($requestedResource);
             echo PHP_EOL;
 
@@ -30,13 +30,13 @@ class Client extends WebSocketUser implements WebSocketUserInterface
         list($id, $sessionHash) = $requestedResource;
 
         if(empty($id)) {
-            echo Nuage\Core\format('No user-id in requestedRessource.', 'red', true), PHP_EOL;
+            echo format('No user-id in requestedRessource.', 'red', true), PHP_EOL;
 
             return false;
         }
 
         if(empty($sessionHash)) {
-            echo Nuage\Core\format('No UUSID in requestedRessource.', 'red', true), PHP_EOL;
+            echo format('No UUSID in requestedRessource.', 'red', true), PHP_EOL;
 
             return false;
         }
@@ -44,7 +44,7 @@ class Client extends WebSocketUser implements WebSocketUserInterface
         $this->user = UserDAO::getById($id);
 
         if($this->user->getSessionHash() != $sessionHash) {
-            echo Nuage\Core\format('UUSID in requestedRessource not equal to stored UUSID.', 'red', true), PHP_EOL;
+            echo format('UUSID in requestedRessource not equal to stored UUSID.', 'red', true), PHP_EOL;
             var_dump($this->user->getSessionHash(), $sessionHash);
             echo PHP_EOL;
 
